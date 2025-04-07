@@ -1,11 +1,10 @@
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ShowCard from "./ShowCard";
 import ShowDetails from "../showdetails/ShowDetails";
-import { PlayCircle, Info } from "lucide-react";
+import { PlayCircle, Info, Bookmark } from "lucide-react";
+import { CheckCircle, CircleAlert } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
@@ -13,7 +12,8 @@ import {
   CarouselPrevious,
   CarouselNext,
 } from "@/components/ui/carousel";
-
+import FullScreenPlayer from "../FullScreenPlayer/FullScreenPlayer"; 
+import { toast } from "sonner";
 interface Show {
   _id: string;
   title: string;
@@ -59,91 +59,54 @@ interface Show {
   num_mflix_comments: number;
   plot_embedding?: number[];
   coverImage: string;
+  trailerUrl: string;
 }
 
-// Carousel Item Component
-const CarouselShowItem = ({ 
-  show, 
-  onShowDetails 
-}: { 
-  show: Show; 
-  onShowDetails: (show: Show) => void 
-}) => {
-  const fallbackImage = "https://placehold.co/300x450?text=No+Image+Available";
-  const [imageSrc, setImageSrc] = useState<string>(
-    show.coverImage && show.poster.trim() !== "" && show.coverImage !== "N/A"
-      ? show.coverImage
-      : fallbackImage
-  );
-  const [hasError, setHasError] = useState(false);
-
-  const handleImageError = () => {
-    if (!hasError) {
-      setImageSrc(fallbackImage);
-      setHasError(true);
-    }
-  };
-
-  return (
-    <div className="relative w-full h-[1050px] lg:h-[1050px] md:h-[750px] sm:h-[650px] h-[550px]">
-      <img
-        src={imageSrc}
-        alt={show.title}
-        className="w-full h-full object-cover"
-        onError={handleImageError}
-        loading="lazy"
-      />
-      <div className="absolute min-h-36 inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent flex items-end pb-20 pl-5">
-        <div className="space-y-4 text-white">
-          <h2 className="text-8xl font-bold text-left">{show.title || "Untitled"}</h2>
-          <p className="text-left text-3xl">
-            {show.genres?.join(", ") || "No genres available"}
-          </p>
-          <p className="text-left text-m">
-            {show.genres?.join(", ") || "No genres available"}
-          </p>
-          <div className="text-left text-m">
-            <p>{show.plot?.slice(0, 110) || "No plot available"}</p>
-            <p>{show.plot?.slice(110, 220) || "No plot available"}...</p>
-          </div>
-
-          <div className="flex gap-4">
-            <Button className="bg-white text-black hover:bg-gray-200">
-              <PlayCircle className="w-5 h-5 mr-1 transition-transform duration-200 group-hover:rotate-12" />
-              Play
-            </Button>
-            <Button 
-              className="bg-white text-black hover:bg-gray-500"
-              onClick={() => onShowDetails(show)}
-            >
-              <Info className="w-5 h-5 mr-1 transition-transform duration-200 group-hover:rotate-12" />
-              More Info
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+const toastStyle = {
+  backgroundColor: "rgba(0, 0, 0, 0.8)",
+  color: "white",
+  display: "flex",
+  alignItems: "center",
+  padding: "20px 30px",
+  borderRadius: "12px",
+  border: "none",
+  boxShadow: "0 6px 8px rgba(0, 0, 0, 0.2)",
+  fontSize: "18px",
+  maxWidth: "900px",
 };
+
+const toastIconError = (
+  <CircleAlert style={{ marginRight: "20px", fill: "red" }} />
+);
+const toastIconSuccess = (
+  <CheckCircle style={{ marginRight: "20px", fill: "green" }} />
+);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const HomePage: React.FC = () => {
   const [shows, setShows] = useState<Show[]>([]);
-  const [activeTab, setActiveTab] = useState<"home" | "all" | "watchlist">("home");
   const [loading, setLoading] = useState(true);
   const [selectedShow, setSelectedShow] = useState<Show | null>(null);
+  const [selectedTrailerUrl, setSelectedTrailerUrl] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const response = await fetch("http://localhost:5000/shows");
-        const data = await response.json();
-        const filteredData = data.filter(
-          (show: Show) =>
-            show.poster && show.poster.trim() !== "" && show.poster !== "N/A"
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_BASE_URL}/shows`, {
+          headers: {
+            "Content-Type": "application/json",
+            ...(token && { Authorization: `Bearer ${token}` }),
+          },
+        });
+        const data: Show[] = await res.json();
+        setShows(
+          data.filter((s) => s.poster?.trim() !== "" && s.poster !== "N/A")
         );
-        setShows(filteredData);
-      } catch (error) {
-        console.error("Failed to fetch shows:", error);
+      } catch (err) {
+        console.error("Failed to fetch shows:", err);
       } finally {
         setLoading(false);
       }
@@ -152,14 +115,53 @@ const HomePage: React.FC = () => {
     fetchShows();
   }, []);
 
-  // Auto-advance carousel every 7 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      const nextButton = document.querySelector(".carousel-next") as HTMLElement;
-      nextButton?.click();
-    }, 7000);
+      document.querySelector<HTMLElement>(".carousel-next")?.click();
+    }, 8000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleAddToWatchlist = async (show: Show) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error("You need to be logged in to add to watchlist.", {
+          icon: toastIconError,
+          style: toastStyle,
+        });
+        return;
+      }
+
+      const response = await fetch(`${API_BASE_URL}/watchlist`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ showId: show._id }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        toast.success("Added to watchlist!", {
+          icon: toastIconSuccess,
+          style: toastStyle,
+        });
+      } else {
+        toast.error(result.message || "Failed to add to watchlist.", {
+          icon: toastIconError,
+          style: toastStyle,
+        });
+      }
+    } catch (err) {
+      toast.error("Something went wrong!", {
+        icon: toastIconError,
+        style: toastStyle,
+      });
+      console.error("Error:", err);
+    }
+  };
 
   const renderContent = () => {
     if (loading) {
@@ -191,7 +193,7 @@ const HomePage: React.FC = () => {
               {Array.from({ length: 30 }).map((_, i) => (
                 <Skeleton
                   key={i}
-                  className="h-[300px] w-full bg-gray-800 rounded-xl"
+                  className="h-[450px] w-full bg-gray-800 rounded-xl"
                 />
               ))}
             </div>
@@ -201,14 +203,7 @@ const HomePage: React.FC = () => {
     }
 
     const carouselShows = shows.slice(0, 3);
-    const gridShows =
-      activeTab === "home"
-        ? shows.slice(3, 33)
-        : activeTab === "all"
-        ? shows.slice(3)
-        : shows
-            .filter((show) => show.title.toLowerCase().includes("watchlist"))
-            .slice(5);
+    const gridShows = shows.slice(3, 33);
 
     return (
       <>
@@ -217,37 +212,76 @@ const HomePage: React.FC = () => {
             <CarouselContent>
               {carouselShows.map((show) => (
                 <CarouselItem key={show._id}>
-                  <CarouselShowItem 
-                    show={show}
-                    onShowDetails={setSelectedShow}
-                  />
+                  <div className="relative w-full h-[550px] lg:h-[1050px] md:h-[750px] sm:h-[650px]">
+                    <img
+                      src={show.coverImage}
+                      alt={show.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) =>
+                        ((e.target as HTMLImageElement).src =
+                          "https://placehold.co/300x450?text=No+Image+Available")
+                      }
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent flex items-end pb-30 pl-10 pr-10">
+                      <div className="space-y-4 text-white max-w-4xl">
+                        <h2 className="text-6xl md:text-8xl font-bold">
+                          {show.title}
+                        </h2>
+                        <p className="text-base md:text-lg text-gray-200 line-clamp-4">
+                          {show.fullplot}
+                        </p>
+                        <p className="text-2xl md:text-3xl text-gray-300">
+                          {show.genres.join(", ")}
+                        </p>
+                        <div className="flex gap-4">
+                          <Button
+                            className="bg-red-600 hover:bg-red-700 text-white text-sm"
+                            onClick={() =>
+                              setSelectedTrailerUrl(show.trailerUrl)
+                            }
+                          >
+                            <PlayCircle className="w-5 h-5 mr-1"  />
+                            Play
+                          </Button>
+                          <Button
+                            className="bg-white text-black hover:bg-gray-100"
+                            onClick={() => setSelectedShow(show)}
+                          >
+                            <Info className="w-5 h-5 mr-1" />
+                            More Info
+                          </Button>
+                          <Button
+                            className="bg-white text-black hover:bg-gray-100"
+                            onClick={() => handleAddToWatchlist(show)}
+                          >
+                            <Bookmark className="w-5 h-5 mr-1"/>
+                            Add to Watchlist
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CarouselItem>
               ))}
             </CarouselContent>
-            <div className="hidden absolute top-1/2 left-4 transform -translate-y-1/2 z-10 opacity-0">
-              <CarouselPrevious className="carousel-prev text-white bg-black/50 rounded-full p-2 hover:bg-black/70">
-                <span className="text-xl">←</span>
-              </CarouselPrevious>
-            </div>
-            <div className="hidden absolute top-1/2 right-4 transform -translate-y-1/2 z-10 opacity-0">
-              <CarouselNext className="carousel-next text-white bg-black/50 rounded-full p-2 hover:bg-black/70">
-                <span className="text-xl">→</span>
-              </CarouselNext>
-            </div>
+            <CarouselPrevious className="carousel-prev hidden absolute top-1/2 left-4 -translate-y-1/2 bg-black/50 rounded-full p-2 hover:bg-black/70">
+              ←
+            </CarouselPrevious>
+            <CarouselNext className="carousel-next hidden absolute top-1/2 right-4 -translate-y-1/2 bg-black/50 rounded-full p-2 hover:bg-black/70">
+              →
+            </CarouselNext>
           </Carousel>
         </div>
 
-        <div className="relative z-20 -mt-20">
-          <div className="p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-              {gridShows.map((show) => (
-                <ShowCard 
-                  key={show._id} 
-                  show={show} 
-                  onShowDetails={setSelectedShow} // Added onShowDetails prop
-                />
-              ))}
-            </div>
+        <div className="relative z-20 -mt-20 p-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+            {gridShows.map((show) => (
+              <ShowCard
+                key={show._id}
+                show={show}
+                onShowDetails={setSelectedShow}
+              />
+            ))}
           </div>
         </div>
 
@@ -257,41 +291,19 @@ const HomePage: React.FC = () => {
             onClose={() => setSelectedShow(null)}
           />
         )}
+
+        {selectedTrailerUrl && (
+          <FullScreenPlayer
+            trailerUrl={selectedTrailerUrl}
+            onClose={() => setSelectedTrailerUrl(null)}
+          />
+        )}
       </>
     );
   };
 
   return (
     <div className="h-screen w-screen bg-black text-white flex flex-col overflow-hidden">
-      {/* Navigation */}
-      <nav className="flex justify-between items-center p-6 flex-shrink-0 fixed top-0 left-0 w-full z-50 bg-gradient-to-r from-black/80 via-transparent to-black/80 transition-colors duration-500">
-        <h1 className="text-3xl font-bold text-red-600">Netflix</h1>
-        <div className="flex gap-4">
-          <Button
-            variant="transparent"
-            onClick={() => setActiveTab("home")}
-            className="transition-all duration-300 text-2xl font-bold text-red-600"
-          >
-            Home
-          </Button>
-          <Button
-            variant="transparent"
-            onClick={() => setActiveTab("all")}
-            className="transition-all duration-300 text-2xl font-bold text-red-600"
-          >
-            All Shows
-          </Button>
-          <Button
-            variant="transparent"
-            onClick={() => setActiveTab("watchlist")}
-            className="transition-all duration-300 text-2xl font-bold text-red-600"
-          >
-            Watchlist
-          </Button>
-        </div>
-      </nav>
-
-      {/* Content */}
       <div className="flex-1 overflow-y-auto">{renderContent()}</div>
     </div>
   );

@@ -2,7 +2,13 @@ import type { FC } from "react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -13,11 +19,32 @@ interface SignupProps extends React.ComponentPropsWithoutRef<"div"> {
   onSwitch?: () => void;
 }
 
-export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...props }) => {
+const toastStyle = {
+  backgroundColor: "rgba(0, 0, 0, 0.8)",
+  color: "white",
+  display: "flex",
+  alignItems: "center",
+  padding: "20px 30px",
+  borderRadius: "12px",
+  border: "none",
+  boxShadow: "0 6px 8px rgba(0, 0, 0, 0.2)",
+  fontSize: "18px",
+  maxWidth: "900px",
+};
+
+const iconStyle = {
+  marginRight: "20px", 
+};
+
+export const Signup: FC<SignupProps> = ({
+  className,
+  onSwitch = () => {},
+  ...props
+}) => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); // New state for confirm password
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -25,20 +52,10 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
     e.preventDefault();
     setError(null);
 
-    // Check if passwords match
     if (password !== confirmPassword) {
       toast.error("Passwords do not match!", {
-        style: {
-          backgroundColor: "rgba(0, 0, 0, 0.8)", // Black with reduced opacity
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          padding: "12px 20px",
-          borderRadius: "8px",
-          border: "none",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        },
-        icon: <CircleAlert style={{ marginRight: "20px", fill: "red", border: "0" }} />,
+        style: toastStyle,
+        icon: <CircleAlert style={{ ...iconStyle, fill: "red" }} />,
       });
       return;
     }
@@ -58,31 +75,13 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
 
       if (!response.ok) {
         toast.error(data.message, {
-          style: {
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            padding: "12px 20px",
-            borderRadius: "8px",
-            border: "none",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          },
-          icon: <CircleAlert style={{ marginRight: "20px", fill: "red" }} />,
+          style: toastStyle,
+          icon: <CircleAlert style={iconStyle} />,
         });
       } else {
         toast.success("Signup successful!", {
-          style: {
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            padding: "12px 20px",
-            borderRadius: "8px",
-            border: "none",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          },
-          icon: <CheckCircle style={{ marginRight: "20px", fill: "green" }} />,
+          style: toastStyle,
+          icon: <CheckCircle style={{ ...iconStyle, fill: "green" }} />,
         });
         onSwitch();
       }
@@ -93,7 +92,8 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
 
   return (
     <div
-      className={cn("rounded-sm w-lg p-10 flex flex-col align-center justify-center bg-black bg-opacity-60 gap-1 min-h-[500px]",
+      className={cn(
+        "rounded-sm w-lg p-10 flex flex-col align-center justify-center bg-black bg-opacity-60 gap-1 min-h-[500px]",
         className
       )}
       {...props}
@@ -112,7 +112,10 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
               )}
               <div className="grid gap-6">
                 <div className="grid gap-2">
-                  <Label className="text-lg font-bold text-white" htmlFor="username">
+                  <Label
+                    className="text-lg font-bold text-white"
+                    htmlFor="username"
+                  >
                     Username
                   </Label>
                   <Input
@@ -127,7 +130,10 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label className="text-lg font-bold text-white" htmlFor="email">
+                  <Label
+                    className="text-lg font-bold text-white"
+                    htmlFor="email"
+                  >
                     Email
                   </Label>
                   <Input
@@ -142,7 +148,10 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label className="text-lg font-bold text-white" htmlFor="password">
+                  <Label
+                    className="text-lg font-bold text-white"
+                    htmlFor="password"
+                  >
                     Password
                   </Label>
                   <Input
@@ -156,7 +165,10 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label className="text-lg font-bold text-white" htmlFor="confirmPassword">
+                  <Label
+                    className="text-lg font-bold text-white"
+                    htmlFor="confirmPassword"
+                  >
                     Confirm Password
                   </Label>
                   <Input
@@ -171,7 +183,7 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
                 </div>
                 <Button
                   type="submit"
-                  size='big'
+                  size="big"
                   className="w-full bg-red-600 hover:bg-red-700"
                   disabled={isLoading}
                 >
@@ -195,8 +207,8 @@ export const Signup: FC<SignupProps> = ({ className, onSwitch = () => {}, ...pro
         </CardContent>
       </Card>
       <div className="text-center text-xs text-gray-400 [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-red-600">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and{" "}
-        <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
+        and <a href="#">Privacy Policy</a>.
       </div>
     </div>
   );

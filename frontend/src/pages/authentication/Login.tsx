@@ -18,8 +18,24 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface LoginProps extends React.ComponentPropsWithoutRef<"div"> {
   onSwitch?: () => void;
-  onLoginSuccess?: () => void; 
+  onLoginSuccess?: () => void;
 }
+
+const toastStyle = {
+  backgroundColor: "rgba(0, 0, 0, 0.8)",
+  color: "white",
+  display: "flex",
+  alignItems: "center",
+  padding: "20px 30px", 
+  borderRadius: "12px", 
+  border: "none",
+  boxShadow: "0 6px 8px rgba(0, 0, 0, 0.2)", 
+  fontSize: "18px", 
+  maxWidth: "900px",
+};
+
+const toastIconError = <CircleAlert style={{ marginRight: "20px", fill: "red" }} />;
+const toastIconSuccess = <CheckCircle style={{ marginRight: "20px", fill: "green" }} />;
 
 export const Login: FC<LoginProps> = ({
   className,
@@ -45,54 +61,28 @@ export const Login: FC<LoginProps> = ({
       });
 
       const data = await response.json();
+      console.log("login response:", data);
 
       if (!response.ok || !data.token) {
         toast.error("Login failed. Please check your credentials.", {
-          style: {
-            backgroundColor: "rgba(0, 0, 0, 0.8)",
-            color: "white",
-            display: "flex",
-            alignItems: "center",
-            padding: "12px 20px",
-            borderRadius: "8px",
-            border: "none",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          },
-          icon: <CircleAlert style={{ marginRight: "20px", fill: "red" }} />,
+          style: toastStyle,
+          icon: toastIconError,
         });
         return;
       }
 
       localStorage.setItem("token", data.token);
+      localStorage.setItem("username", data.username);
       toast.success("Login successful!", {
-        style: {
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          padding: "12px 20px",
-          borderRadius: "8px",
-          border: "none",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        },
-        icon: <CheckCircle style={{ marginRight: "20px", fill: "green" }} />,
+        style: toastStyle,
+        icon: toastIconSuccess,
       });
-
-      onLoginSuccess(); // ✅ Trigger redirect
+      onLoginSuccess();
 
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "An error occurred", {
-        style: {
-          backgroundColor: "rgba(0, 0, 0, 0.8)",
-          color: "white",
-          display: "flex",
-          alignItems: "center",
-          padding: "12px 20px",
-          borderRadius: "8px",
-          border: "none",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        },
-        icon: <CircleAlert style={{ marginRight: "30px" }} />,
+        style: toastStyle,
+        icon: toastIconError,
       });
     } finally {
       setIsLoading(false);

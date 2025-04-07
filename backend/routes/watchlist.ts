@@ -21,7 +21,7 @@ router.post('/', authMiddleware, async (req: Request, res: Response): Promise<vo
   res.json({ message: 'Show added to watchlist' });
 });
 
-// Get user's watchlist
+// Get watchlist
 router.get('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   const user = await User.findById(req.user).populate('watchlist');
   if (!user) {
