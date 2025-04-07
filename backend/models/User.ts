@@ -14,4 +14,4 @@ const UserSchema: Schema = new Schema({
   watchlist: [{ type: Schema.Types.ObjectId, ref: 'Show' }]
 });
 
-export default mongoose.model<IUser>('User', UserSchema);
+export default mongoose.model<IUser>('user', UserSchema);

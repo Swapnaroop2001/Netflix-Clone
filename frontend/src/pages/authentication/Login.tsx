@@ -12,20 +12,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle } from "lucide-react";
-import { CircleAlert } from "lucide-react";
+import { CheckCircle, CircleAlert } from "lucide-react";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface LoginProps extends React.ComponentPropsWithoutRef<"div"> {
   onSwitch?: () => void;
+  onLoginSuccess?: () => void; 
 }
 
 export const Login: FC<LoginProps> = ({
   className,
   onSwitch = () => {},
+  onLoginSuccess = () => {},
   ...props
 }) => {
-  const [identifier, setIdentifier] = useState(""); // Can be username or email
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -45,51 +47,50 @@ export const Login: FC<LoginProps> = ({
       const data = await response.json();
 
       if (!response.ok || !data.token) {
-        // If response is not okay or there's no token, show error
         toast.error("Login failed. Please check your credentials.", {
           style: {
-            backgroundColor: "rgba(0, 0, 0, 0.8)", // Black with reduced opacity
-            color: "white", 
-            display: "flex", 
-            alignItems: "center", 
-            padding: "12px 20px", 
-            borderRadius: "8px", 
-            border:'none',
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            color: "white",
+            display: "flex",
+            alignItems: "center",
+            padding: "12px 20px",
+            borderRadius: "8px",
+            border: "none",
             boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
           },
-          icon: <CircleAlert style={{ marginRight: "20px", fill: "red" }} />, // White CircleAlert icon from Lucide React
+          icon: <CircleAlert style={{ marginRight: "20px", fill: "red" }} />,
         });
         return;
       }
 
-      // If login is successful, save the token and show success toast
       localStorage.setItem("token", data.token);
-      console.log("Login successful:", data);
       toast.success("Login successful!", {
         style: {
-            backgroundColor: "rgba(0, 0, 0, 0.8)", // Black with reduced opacity
-            color: "white", 
-            display: "flex", 
-            alignItems: "center", 
-            padding: "12px 20px", 
-            borderRadius: "8px", 
-            border:'none',
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          padding: "12px 20px",
+          borderRadius: "8px",
+          border: "none",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         },
         icon: <CheckCircle style={{ marginRight: "20px", fill: "green" }} />,
       });
+
+      onLoginSuccess(); // ✅ Trigger redirect
+
     } catch (err) {
-      // Catch unexpected errors
       toast.error(err instanceof Error ? err.message : "An error occurred", {
         style: {
-            backgroundColor: "rgba(0, 0, 0, 0.8)", // Black with reduced opacity
-            color: "white", 
-            display: "flex", 
-            alignItems: "center", 
-            padding: "12px 20px", 
-            borderRadius: "8px", 
-            border:'none',
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          color: "white",
+          display: "flex",
+          alignItems: "center",
+          padding: "12px 20px",
+          borderRadius: "8px",
+          border: "none",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         },
         icon: <CircleAlert style={{ marginRight: "30px" }} />,
       });
@@ -97,15 +98,16 @@ export const Login: FC<LoginProps> = ({
       setIsLoading(false);
     }
   };
+
   return (
     <div
-      className={cn(" w-lg p-14 flex flex-col rounded-sm align-center justify-center bg-black bg-opacity-60 gap-6 min-h-[500px]",
+      className={cn(
+        "w-lg p-14 flex flex-col rounded-sm align-center justify-center bg-black bg-opacity-60 gap-6 min-h-[500px]",
         className
       )}
       {...props}
-      style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }} // explicitly set black with opacity
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.8)" }}
     >
-      {" "}
       <Card className="text-white bg-black bg-opacity-90 shadow-lg border-0">
         <CardHeader className="text-start">
           <CardTitle className="text-5xl">Log In</CardTitle>
@@ -161,7 +163,7 @@ export const Login: FC<LoginProps> = ({
                 </div>
                 <Button
                   type="submit"
-                  size='big'
+                  size="big"
                   className="w-full bg-red-600 hover:bg-red-700"
                   disabled={isLoading}
                 >
@@ -171,10 +173,10 @@ export const Login: FC<LoginProps> = ({
               <div className="text-center text-sm">
                 Don't have an account?{" "}
                 <Button
-                  size='lg'
+                  size="lg"
                   onClick={onSwitch}
-                  variant='transparent'
-                  className="underline underline-offset-4  hover:text-red-500"
+                  variant="transparent"
+                  className="underline underline-offset-4 hover:text-red-500"
                   disabled={isLoading}
                 >
                   Sign up

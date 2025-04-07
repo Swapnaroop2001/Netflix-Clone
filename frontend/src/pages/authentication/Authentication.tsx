@@ -2,9 +2,14 @@ import { Signup } from "./Signup";
 import { Login } from "./Login";
 import { useState } from "react";
 import nflxBg from "../../assets/nflx-bg.jpg";
-
+import { useNavigate } from "react-router-dom";
 export default function Authentication() {
   const [showSignup, setShowSignup] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLoginSuccess = () => {
+    navigate("/home"); // ✅ Redirect to home
+  };
 
   return (
     <div
@@ -22,7 +27,9 @@ export default function Authentication() {
         {showSignup ? (
           <Signup onSwitch={() => setShowSignup(false)} />
         ) : (
-          <Login onSwitch={() => setShowSignup(true)} />
+          <Login onSwitch={() => setShowSignup(true)} 
+          onLoginSuccess={handleLoginSuccess}
+          />
         )}
       </div>
     </div>
