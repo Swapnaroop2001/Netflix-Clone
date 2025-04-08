@@ -56,10 +56,11 @@ The frontend is built using **ShadCN** for the design system and **TypeScript** 
 Here are some screenshots of the app in action:
 
 - **Login Page**: ![Login Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/login.png)
-- **Signup Page**: ![Signup Screenshot](https://link_to_your_screenshot_here)
-- **Home Page**: ![Home Screenshot](https://link_to_your_screenshot_here)
-- **All Shows Page**: ![All Shows Screenshot](https://link_to_your_screenshot_here)
-- **Watchlist**: ![Watchlist Screenshot](https://link_to_your_screenshot_here)
-- **Show Details**: ![Show Details Screenshot](https://link_to_your_screenshot_here)
-- **Home Skeleton Loading**: ![Home Skeleton Screenshot](https://link_to_your_screenshot_here)
-- **All Shows Skeleton Loading**: ![All Shows Skeleton Screenshot](https://link_to_your_screenshot_here)
+- **Signup Page**: ![Signup Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/signup.png)
+- **Home Page**: ![Home Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/home.png)
+- **Home Page extended**: ![Home Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/home2.png)
+- **All Shows Page**: ![All Shows Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/allshows.png)
+- **Watchlist**: ![Watchlist Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/watchlist.png)
+- **Show Details**: ![Show Details Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/showDetails.png)
+- **Home Skeleton Loading**: ![Home Skeleton Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/Homeskeleton.png)
+
