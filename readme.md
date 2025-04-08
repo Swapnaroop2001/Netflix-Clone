@@ -24,7 +24,7 @@ The backend of the Netflix clone utilizes **Node.js** and **Express** to handle 
   - RESTful APIs are created using **Express** to fetch show details, search for shows, update watchlists, and handle user operations.
   - The API supports fetching show data, including trailers, ratings, descriptions, and other relevant show details.
 - **Data Fetching**: 
-  - Data is fetched from an external source (e.g., a movie database API or custom backend) and displayed on the frontend. This ensures that the latest shows and trailers are always available.
+  - Data is fetched from a custom backend that uses MongoDB and displayed on the frontend. This ensures that the latest shows and trailers are always available.
 
 ## Frontend
 
