@@ -49,7 +49,7 @@ The frontend is built using **ShadCN** for the design system and **TypeScript** 
 - **Frontend**: ShadCN (UI components), TypeScript, React
 - **Backend**: Node.js, Express, MongoDB, JWT
 - **Authentication**: JWT (JSON Web Tokens), bcrypt
-- **External API**: Movie Database API (for fetching shows/movies data)
+
 
 ## Screenshots
 
