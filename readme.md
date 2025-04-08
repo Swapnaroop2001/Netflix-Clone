@@ -55,7 +55,7 @@ The frontend is built using **ShadCN** for the design system and **TypeScript** 
 
 Here are some screenshots of the app in action:
 
-- **Login Page**: ![Login Screenshot](https://link_to_your_screenshot_here)
+- **Login Page**: ![Login Screenshot](https://github.com/Swapnaroop2001/Netflix-Clone/blob/main/frontend/src/assets/login.png)
 - **Signup Page**: ![Signup Screenshot](https://link_to_your_screenshot_here)
 - **Home Page**: ![Home Screenshot](https://link_to_your_screenshot_here)
 - **All Shows Page**: ![All Shows Screenshot](https://link_to_your_screenshot_here)
